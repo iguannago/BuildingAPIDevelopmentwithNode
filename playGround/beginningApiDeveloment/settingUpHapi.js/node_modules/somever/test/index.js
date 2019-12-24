@@ -23,7 +23,7 @@ const expect = Code.expect;
 
 describe('match()', () => {
 
-    it('matches version within range', () => {
+    it('matches version within range', (done) => {
 
         const tests = [
             ['1.0.0 - 2.0.0', '1.2.3'],
@@ -137,9 +137,11 @@ describe('match()', () => {
 
             expect(match).to.be.true();
         }
+
+        done();
     });
 
-    it('fails to match version outside of range', () => {
+    it('fails to match version outside of range', (done) => {
 
         const tests = [
             ['1.0.0 - 2.0.0', '2.2.3'],
@@ -219,73 +221,89 @@ describe('match()', () => {
 
             expect(match).to.be.false();
         }
+
+        done();
     });
 });
 
 describe('Version', () => {
 
-    it('builds version from object', () => {
+    it('builds version from object', (done) => {
 
         const version = Somever.version({ prerelease: [1], build: ['abc'] });
         expect(version.version).to.equal('x.x.x-1+abc');
+
+        done();
     });
 
-    it('default missing object values to wildcards', () => {
+    it('default missing object values to wildcards', (done) => {
 
         const version = Somever.version({});
         expect(version.version).to.equal('x.x.x');
         expect(version.prerelease).to.equal([]);
         expect(version.build).to.equal([]);
+
+        done();
     });
 
     describe('_parse()', () => {
 
-        it('throws on invalid version string', () => {
+        it('throws on invalid version string', (done) => {
 
             expect(() => Somever.version('a.b.c')).to.throw();
             expect(() => Somever.version('1.b.c')).to.throw();
             expect(() => Somever.version('1.2.3.4')).to.throw();
             expect(() => Somever.version('1.2.3-+')).to.throw();
+
+            done();
         });
 
-        it('throws on invalid version string (strict)', () => {
+        it('throws on invalid version string (strict)', (done) => {
 
             expect(() => Somever.version('01.02.03')).to.not.throw();
             expect(() => Somever.version('01.02.03', { strict: true })).to.throw();
 
             expect(() => Somever.version('1.2.3-x$')).to.not.throw();
             expect(() => Somever.version('1.2.3-x$', { strict: true })).to.throw();
+
+            done();
         });
     });
 
     describe('format()', () => {
 
-        it('marks as wildcard only when all digits are wildcards', () => {
+        it('marks as wildcard only when all digits are wildcards', (done) => {
 
             expect(Somever.version('1.x.x').wildcard).to.be.false();
             expect(Somever.version('x.1.x').wildcard).to.be.false();
             expect(Somever.version('x.x.1').wildcard).to.be.false();
             expect(Somever.version('x.x.x').wildcard).to.be.true();
             expect(Somever.version('x.x.x-1').wildcard).to.be.false();
+
+            done();
         });
     });
 
     describe('compare()', () => {
 
-        it('ignores prerelease bias rules when comparison does not include a range', () => {
+        it('ignores prerelease bias rules when comparison does not include a range', (done) => {
 
             expect(Somever.version('1.1.2-bis').compare('1.1.2')).to.equal(-1);
+
+            done();
         });
 
-        it('treats wildcard as a match for anything', () => {
+        it('treats wildcard as a match for anything', (done) => {
 
             expect(Somever.version('1.x.x').compare('1.1.2')).to.equal(0);
             expect(Somever.version('x.1.1').compare('2.1.1')).to.equal(0);
             expect(Somever.version('1.1.x').compare('1.1.1')).to.equal(0);
             expect(Somever.version('1.x.1').compare('1.3.1')).to.equal(0);
+
+            done();
         });
 
-        it('compares prereleases', () => {
+        it('compares prereleases', (done) => {
 
             expect(Somever.version('1.1.2-bis.z.1.3').compare('1.1.2-bis.z.1.3')).to.equal(0);
             expect(Somever.version('1.1.2-bis.z.1.3').compare('1.1.2-bis.z.1.3.4')).to.equal(-1);
@@ -294,13 +312,15 @@ describe('Version', () => {
             expect(Somever.version('1.1.2-bis.z.1.3').compare('1.1.2-bis.z.1.4')).to.equal(-1);
             expect(Somever.version('1.1.2-bis.1.3').compare('1.1.2-bis.1.z')).to.equal(-1);
             expect(Somever.version('1.1.2-bis.1.z').compare('1.1.2-bis.1.3')).to.equal(1);
+
+            done();
         });
     });
 });
 
 describe('Range', () => {
 
-    it('creates dynamic rules', () => {
+    it('creates dynamic rules', (done) => {
 
         const range = Somever.range();
         range.above('2.4.5').below('3.2.3');
@@ -309,9 +329,11 @@ describe('Range', () => {
         expect(range.match('3.2.2')).to.be.true();
         expect(range.match('2.4.5')).to.be.false();
         expect(range.match('2.4.6')).to.be.true();
+
+        done();
     });
 
-    it('validates valid ranges', () => {
+    it('validates valid ranges', (done) => {
 
         const tests = [
             ['1.0.0 - 2.0.0', '>=1.0.0 <=2.0.0'],
@@ -387,16 +409,20 @@ describe('Range', () => {
             const range = Somever.range(test[0]);
             expect(range.toString()).to.equal(test[1]);
         }
+
+        done();
     });
 
-    it('errors on invalid range', () => {
+    it('errors on invalid range', (done) => {
 
         expect(() => Somever.range('%1.2.3')).to.throw('Invalid range: "%1.2.3" because: Invalid version string format: %1.2.3');
+
+        done();
     });
 
     describe('or', () => {
 
-        it('creates or statements', () => {
+        it('creates or statements', (done) => {
 
             const range = Somever.range();
             range.equal('2.4.5').or.above('3.2.3');
@@ -405,26 +431,32 @@ describe('Range', () => {
             expect(range.match('3.2.4')).to.be.true();
             expect(range.match('2.4.5')).to.be.true();
             expect(range.match('2.4.6')).to.be.false();
+
+            done();
         });
     });
 
     describe('minor()', () => {
 
-        it('treats wildcard major as exact match', () => {
+        it('treats wildcard major as exact match', (done) => {
 
             const range = Somever.range().minor('x.1.2');
             expect(range.match('3.2.3')).to.be.false();
             expect(range.match('3.1.2')).to.be.true();
+
+            done();
         });
     });
 
     describe('compatible()', () => {
 
-        it('treats wildcard major as exact match', () => {
+        it('treats wildcard major as exact match', (done) => {
 
             const range = Somever.range().compatible('x.1.2');
             expect(range.match('3.2.3')).to.be.false();
             expect(range.match('3.1.2')).to.be.true();
+
+            done();
         });
     });
 });

@@ -2,7 +2,6 @@
 
 // Load modules
 
-const Bounce = require('bounce');
 const Hoek = require('hoek');
 
 
@@ -41,8 +40,7 @@ exports.match = function (version, range) {
     try {
         return exports.range(range).match(version);
     }
-    catch (err) {
-        Bounce.rethrow(err, 'system');
+    catch (ignoreErr) {
         return false;
     }
 };
