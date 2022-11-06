@@ -22,7 +22,7 @@
     "mysql": "^2.15.0"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-shell": "^0.6.3",
     "gulp-watch": "^4.3.11",
     "lab": "^15.1.2"
